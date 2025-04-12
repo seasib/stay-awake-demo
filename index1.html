@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PWA Stay Awake Hack Demo</title>
+
+  <!-- iOS PWA meta -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: #f5f5f5;
+      color: #333;
+    }
+    button {
+      padding: 1rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin-right: 1rem;
+    }
+    #log {
+      margin-top: 2rem;
+      font-family: monospace;
+      white-space: pre-wrap;
+      background: #fff;
+      padding: 1rem;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>🔌 Stay Awake Hack (PWA / iOS Test)</h1>
+  <p>Нажми кнопку ниже, чтобы активировать "анти-сон" механизм. Экран должен оставаться включённым.</p>
+
+  <button onclick="startStayAwake()">⚡ Включить JS-анимацию</button>
+  <button onclick="startVideoAwake()">🎬 Включить через video</button>
+
+  <div id="log"></div>
+
+  <video id="silent-video" playsinline autoplay loop muted style="display:none">
+    <source src="black.mp4" type="video/mp4" />
+  </video>
+
+  <script>
+    function log(msg) {
+      const logEl = document.getElementById("log");
+      logEl.textContent += `\n[${new Date().toLocaleTimeString()}] ${msg}`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function startStayAwake() {
+      log("⚡ Активируем stay-awake JS-хак...");
+
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.frequency.value = 0.0001;
+        gain.gain.value = 0.00001;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        log("🎵 Web Audio активирован");
+      } catch (e) {
+        log("⚠️ Web Audio не сработал");
+      }
+
+      const el = document.createElement("div");
+      el.style.width = "1px";
+      el.style.height = "1px";
+      el.style.position = "absolute";
+      el.style.top = "0";
+      el.style.left = "0";
+      el.style.background = "transparent";
+      document.body.appendChild(el);
+      let tick = 0;
+      setInterval(() => {
+        tick++;
+        el.style.transform = `translateY(${(tick % 2) * 0.01}px)`;
+        log("🔄 Анимация сработала");
+      }, 15000);
+
+      const scroller = document.createElement("div");
+      scroller.style.height = "1px";
+      scroller.style.overflow = "auto";
+      scroller.innerHTML = '<div style="height:10px"></div>';
+      document.body.appendChild(scroller);
+      setInterval(() => {
+        scroller.scrollTop = scroller.scrollTop === 0 ? 1 : 0;
+        log("📜 Скролл активирован");
+      }, 20000);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = 1;
+      canvas.height = 1;
+      canvas.style.display = "none";
+      document.body.appendChild(canvas);
+      const ctx2d = canvas.getContext("2d");
+      function drawPing() {
+        ctx2d.fillStyle = "black";
+        ctx2d.fillRect(0, 0, 1, 1);
+        requestAnimationFrame(drawPing);
+      }
+      drawPing();
+      log("🎨 Canvas активен");
+
+      let seconds = 0;
+      setInterval(() => {
+        seconds++;
+        log(`⏱️ JS активен ${seconds} сек`);
+      }, 10000);
+    }
+
+    function startVideoAwake() {
+      const video = document.getElementById("silent-video");
+      video.play().then(() => {
+        log("🎬 Видео запущено — iOS может не отключать экран");
+      }).catch(err => {
+        log("❌ Не удалось запустить видео: " + err);
+      });
+    }
+  </script>
+</body>
+</html>
