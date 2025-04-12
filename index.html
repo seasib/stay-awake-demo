@@ -22,6 +22,7 @@
       padding: 1rem;
       font-size: 1.2rem;
       cursor: pointer;
+      margin-right: 1rem;
     }
     #log {
       margin-top: 2rem;
@@ -37,8 +38,13 @@
 <body>
   <h1>🔌 Stay Awake Hack (PWA / iOS Test)</h1>
   <p>Нажми кнопку ниже, чтобы активировать "анти-сон" механизм. Экран должен оставаться включённым.</p>
-  <button onclick="startStayAwake()">Включить анти-сон</button>
+
+  <button onclick="startStayAwake()">⚡ Включить JS-анимацию</button>
+  <button onclick="startAudioAwake()">🎧 Включить через звук</button>
+
   <div id="log"></div>
+
+  <audio id="silent-audio" src="silent.mp3" loop></audio>
 
   <script>
     function log(msg) {
@@ -48,7 +54,7 @@
     }
 
     function startStayAwake() {
-      log("\u26A1 Активируем stay-awake хак...");
+      log("⚡ Активируем stay-awake JS-хак...");
 
       // Web Audio API
       try {
@@ -89,7 +95,7 @@
       document.body.appendChild(scroller);
       setInterval(() => {
         scroller.scrollTop = scroller.scrollTop === 0 ? 1 : 0;
-        log("📋 Скролл активирован");
+        log("📜 Скролл активирован");
       }, 20000);
 
       // Canvas activity
@@ -111,8 +117,17 @@
       let seconds = 0;
       setInterval(() => {
         seconds++;
-        log(`⏱️ Приложение активно ${seconds} сек`);
+        log(`⏱️ JS активен ${seconds} сек`);
       }, 10000);
+    }
+
+    function startAudioAwake() {
+      const audio = document.getElementById("silent-audio");
+      audio.play().then(() => {
+        log("🎧 Аудио воспроизведение запущено — экран не должен тухнуть");
+      }).catch(err => {
+        log("❌ Не удалось запустить аудио: " + err);
+      });
     }
   </script>
 </body>
